@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="bs/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+
+    <title> Diva-21083010069</title>
+  </head>
+  <body>
+
+    <div class="jumbotron jumbotron-fluid bg-dark text-light">
+        <div class="container text-center">
+          <h1 class="display-4">Problem Solving</h1>
+          <p class="lead">Menggunakan Interpolasi Search</p>
+          <strong>Diva Keishya Kirana</strong> <br>
+          <strong>21083010069</strong>
+        </div>
+      </div>
+
+
+      <div class="container">
+          <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg col-md-6">
+                    <strong>Kata Kunci</strong>
+                    <div class="input-group">
+                        <textarea id="kata-kunci" class="form-control" aria-label="With textarea" placeholder="Masukkan Kata Kunci" style="height: 300px;"></textarea>
+                      </div>
+                </div>
+
+                <div class="col-lg col-md-6">
+                    <strong>Hasil</strong>
+                    <div class="input-group">
+                        
+                        <textarea id="hasil" class="form-control" aria-label="With textarea" placeholder="Hasil Kata Kunci" style="height: 300px;" disabled>
+                        
+                        </textarea>
+                      </div>
+                </div>
+            </div>
+
+
+         
+
+            <div class="row justify-content-center mt-5">
+                <button class="btn btn-dark" id="btn-cari">Cari Kata Kunci</button>
+
+            </div>
+            <hr> 
+
+      
+
+          <h1 class="text-center mt-4">Kata Baku Yang Terdaftar</h1>
+
+          <table class="table">
+            <thead>
+              <tr>
+                  <th scope="col">No</th>
+                <th scope="col">index</th>
+                <th scope="col">Kata Baku</th>
+              </tr>
+            </thead>
+           <tbody>
+           
+           </tbody>
+          </table>
+          </div>
+
+     </div>
+
+    
+
+    
+    
+    
+    </div>
+
+
+    <script src="js/jquery.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="bs/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+    <script>
+        $("document").ready(function(){
+
+            // get table
+            $.ajax({
+                url:"Data/db1.txt",
+                type:"POST",
+                success:function(data){
+
+                        // replace charcker enter
+                        let db1 = data.replace(/[\r\n]/g, ' ').split(" ").filter(el => el != " ");
+
+                        // unik array
+                        let unikArr = [...new Set(db1)].map(v => v.toLowerCase()).sort();
+
+                        unikArr.forEach((e,i) => {
+
+                            if(e != " "){
+                                let el = `
+                                     <tr>
+                                         <td>${i + 1}</td>
+                                         <td>${i}</td>
+                                         <td>${e}</td>
+                                    </tr>
+                            `
+
+                            $("tbody").append(el);
+                            }
+                         
+                        })
+                        
+                }
+            })
+
+            $("#btn-cari").click("click",function(){
+                let kataKunci = $("#kata-kunci").val();
+                if(kataKunci == "" || kataKunci == null){
+                  Swal.fire(
+                          'Oppss!',
+                          'Kata Kunci Belum Anda Masukkan',
+                          'error'
+                          )
+                }else{
+                       $.ajax({
+                    url:"Data/db1.txt",
+                    type:"POST",
+                    beforeSend:function(){
+                          Swal.fire({
+                            title: 'Memeriksa Kata Kunci.....',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            showConfirmButton:false,
+                            willOpen: () => {
+                              Swal.showLoading()
+                            }
+                          })
+                    },
+                    success:function(data){
+                        let db1 = data.replace(/[\r\n]/g, ' ').split(" ").filter(el => el != " ");
+                        let unikArr = [...new Set(db1)].map(v => v.toLowerCase()).sort();
+
+                        let cek = Interpolasi(unikArr,kataKunci.toLowerCase());
+
+                        if(cek){
+
+                          setTimeout(() => {
+                              Swal.close();
+                            let Hasil = `Kata ${kataKunci} Merupakan Kata Baku sesuai pada database kami`;
+
+                            $("#hasil").html(Hasil);
+
+
+
+                            },2000)
+                        }else{
+                          setTimeout(() => {
+                              Swal.close();
+                              let Hasil = `Kata ${kataKunci} Tidak Ada didalam Database Kami`
+
+                            $("#hasil").html(Hasil);
+
+                            },2000)
+                        }
+                    }
+                    
+                })    
+                }
+
+            })
+         
+           
+           
+           
+            function Interpolasi(array,key){
+               return array.includes(key) ? true : false;
+            }
+        })
+    </script>
+
+  </body>
+</html>
